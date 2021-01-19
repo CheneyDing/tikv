@@ -899,11 +899,17 @@ pub fn flush_engine_levelstat_properties(engine: &DB, name: &str) {
             for level in 0..opts.get_num_levels() {
                 if let Some(v) = crate::util::get_cf_num_files_at_level(engine, handle, level) {
                     if v > 0 {
-                        let key_prefix = "compaction." + "L" + level.to_string() + ".";
+                        let mut key_prefix = "compaction.L".to_string();
+                        let level_str = level.to_string();
+                        let dot = ".".to_string();
+                        key_prefix += &level_str;
+                        key_prefix += &dot;
                         for i in 0..key_num {
-                            let vaule = info.get_property_float_value(key_prefix + ROCKSDB_LEVELSTAT_KEY[i]);
+                            let key = ROCKSDB_LEVELSTAT_KEY[i];
+                            key_prefix += &key;
+                            let value = info.get_property_float_value(&key_prefix);
                             STORE_ENGINE_LEVEL_STAT_GAUGE_VEC
-                                .with_label_value(&[name, key_prefix + ROCKSDB_LEVELSTAT_KEY[i]])
+                                .with_label_values(&[name, &key_prefix])
                                 .set(value as f64);
                         }
                     }
