@@ -905,11 +905,11 @@ pub fn flush_engine_levelstat_properties(engine: &DB, name: &str) {
                         key_prefix += &level_str;
                         key_prefix += &dot;
                         for i in 0..key_num {
-                            let key = ROCKSDB_LEVELSTAT_KEY[i];
-                            key_prefix += &key;
-                            let value = info.get_property_float_value(&key_prefix);
+                            let mut key = key_prefix.clone();
+                            key += ROCKSDB_LEVELSTAT_KEY[i];
+                            let value = info.get_property_float_value(&key);
                             STORE_ENGINE_LEVEL_STAT_GAUGE_VEC
-                                .with_label_values(&[name, &key_prefix])
+                                .with_label_values(&[name, &key])
                                 .set(value as f64);
                         }
                     }
