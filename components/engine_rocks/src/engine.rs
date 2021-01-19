@@ -13,7 +13,7 @@ use rocksdb::{DBIterator, Writable, DB};
 use crate::db_vector::RocksDBVector;
 use crate::options::RocksReadOptions;
 use crate::rocks_metrics::{
-    flush_engine_histogram_metrics, flush_engine_iostall_properties, flush_engine_properties,
+    flush_engine_histogram_metrics, flush_engine_iostall_properties, flush_engine_levelstat_properties, flush_engine_properties,
     flush_engine_ticker_metrics,
 };
 use crate::rocks_metrics_defs::{
@@ -99,6 +99,7 @@ impl KvEngine for RocksEngine {
         }
         flush_engine_properties(&self.db, instance, self.shared_block_cache);
         flush_engine_iostall_properties(&self.db, instance);
+        flush_engine_levelstat_properties(&self.db, instance);
     }
 
     fn reset_statistics(&self) {

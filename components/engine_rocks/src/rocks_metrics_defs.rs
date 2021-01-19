@@ -54,6 +54,29 @@ pub const ROCKSDB_IOSTALL_TYPE: &[&str] = &[
     "memtable_count_limit_stop",
 ];
 
+pub const ROCKSDB_LEVELSTATS: &str = "rocksdb.levelstats";
+pub const ROCKSDB_LEVELSTAT_KEY: &[&str] = &[
+    "NumFiles",
+    "CompactedFiles",
+    "SizeBytes",
+    "Score",
+    "ReadGB",
+    "RnGB",
+    "Rnp1GB",
+    "WriteGB",
+    "WnewGB",
+    "MovedGB",
+    "WriteAmp",
+    "ReadMBps",
+    "WriteMBps",
+    "CompSec",
+    "CompMergeCPU",
+    "CompCount",
+    "AvgSec",
+    "KeyIn",
+    "KeyDrop",
+];
+
 pub const ENGINE_TICKER_TYPES: &[TickerType] = &[
     TickerType::BlockCacheMiss,
     TickerType::BlockCacheHit,

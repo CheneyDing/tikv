@@ -890,6 +890,31 @@ pub fn flush_engine_iostall_properties(engine: &DB, name: &str) {
     }
 }
 
+pub fn flush_engine_levelstat_properties(engine: &DB, name: &str) {
+    let key_num = ROCKSDB_LEVELSTAT_KEY.len();
+    for cf in engine.cf_names() {
+        let handle = crate::util::get_cf_handle(engine, cf).unwrap();
+        if let Some(info) = engine.get_map_property_cf(handle, ROCKSDB_CFSTATS) {
+            let opts = engine.get_options_cf(handle);
+            for level in 0..opts.get_num_levels() {
+                if let Some(v) = crate::util::get_cf_num_files_at_level(engine, handle, level) {
+                    if v > 0 {
+                        let key_prefix = "compaction." + "L" + level.to_string() + ".";
+                        for i in 0..key_num {
+                            let vaule = info.get_property_float_value(key_prefix + ROCKSDB_LEVELSTAT_KEY[i]);
+                            STORE_ENGINE_LEVEL_STAT_GAUGE_VEC
+                                .with_label_value(&[name, key_prefix + ROCKSDB_LEVELSTAT_KEY[i]])
+                                .set(value as f64);
+                        }
+                    }
+                }
+            }
+        } else {
+            return;
+        }
+    }
+}
+
 pub fn flush_engine_properties(engine: &DB, name: &str, shared_block_cache: bool) {
     for cf in engine.cf_names() {
         let handle = crate::util::get_cf_handle(engine, cf).unwrap();
@@ -1556,6 +1581,11 @@ lazy_static! {
     pub static ref STORE_ENGINE_ITER_TOUCH_BLOB_FILE_COUNT_VEC: GaugeVec = register_gauge_vec!(
         "tikv_engine_blob_iter_touch_blob_file_count",
         "Histogram of titan iter touched blob file count",
+        &["db", "type"]
+    ).unwrap();
+    pub static ref STORE_ENGINE_LEVEL_STAT_GAUGE_VEC: GaugeVec = register_gauge_vec!(
+        "tikv_engine_level_stat",
+        "Statistics at each level",
         &["db", "type"]
     ).unwrap();
 }
